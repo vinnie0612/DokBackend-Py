@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DÖK: Index</title>
+</head>
+<body>
+    <img id="pfp" src="./pfp" alt="Profile Picture" width="100px" style="float: right;">
+    <h1>DÖKBackend</h1>
+    <h2>Welcome {{ user.get("name") }}!</h2>
+    <br>
+    <code>{{ user }}</code>
+    <br>
+    <ul>
+        <li><a href="/logout">Logout</a></li>
+        <li><a href="/door">Open a Door</a></li>
+        <li><a href="/downstream">Get user info in JSON</a></li>
+    </ul>
+    <hr>
+    <footer style="text-align: right">DÖKBackend-Py {{ version }}</footer>
+</body>
+</html>
+
