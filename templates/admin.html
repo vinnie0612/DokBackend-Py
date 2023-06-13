@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DÖK: Admin</title>
+</head>
+<body>
+    <img id="pfp" src="./pfp" alt="Profile Picture" width="100px" style="float: right;">
+    <h1>DÖKBackend</h1>
+    <h2>Welcome {{ user.get("name") }}!</h2>
+    <h2>Add a new task</h2>
+    <form method="POST" action="/createtask">
+        <label for="assigned_to">Assigned to:</label>
+        <select id="assigned_to" name="assigned_to" required></select>
+    
+        <script>
+            // Retrieve all users from the server
+            fetch('/get_users')
+                .then(response => response.json())
+                .then(users => {
+                    // Get the select element
+                    const selectElement = document.getElementById('assigned_to');
+    
+                    // Iterate over the users and create an option element for each
+                    users.forEach(user => {
+                        const optionElement = document.createElement('option');
+                        optionElement.value = user.name;
+                        optionElement.innerHTML = user.user_id;
+                        selectElement.appendChild(optionElement);
+                    });
+                })
+                .catch(error => console.error('Error:', error));
+        </script>
+        <br>
+
+        <label for="description">Description:</label>
+        <textarea id="description" name="description" required></textarea><br>
+        <br>
+
+        <label for="deadline">Deadline:</label>
+        <input type="datetime-local" id="deadline" name="deadline" required><br>
+
+        <input type="submit" value="Create Task">
+    </form>
+
+    <hr>
+    <footer style="text-align: right">DÖKBackend-Py {{ version }}</footer>
+</body>
+</html>
+

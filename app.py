@@ -1,5 +1,6 @@
 from flask import Flask, redirect, render_template, request, session, url_for, jsonify, Response
 from flask_session import Session
+from datetime import datetime
 from functools import wraps
 import db
 import requests
@@ -23,11 +24,19 @@ auth = identity.web.Auth(
 
 def login_required(func):
     @wraps(func)
-    def wrapper(*args, **kwargs):
+    def login_wrapper(*args, **kwargs):
         if not auth.get_user():
             return redirect(url_for("login"))
         return func(*args, **kwargs)
-    return wrapper
+    return login_wrapper
+
+def admin_required(func):
+    @wraps(func)
+    def admin_wrapper(*args, **kwargs):
+        if db.get_user_auth_level(auth.get_user()["oid"]) < 10:
+            return redirect(url_for("index"))
+        return func(*args, **kwargs)
+    return admin_wrapper
 
 def handle_user_db_sync(user_id,name):
     if not db.get_user_exist(user_id):
@@ -46,7 +55,7 @@ def auth_response():
         if "error" in result:
             return render_template("auth_error.html", result=result)
         user = auth.get_user()
-        handle_user_db_sync(user["name"], user["oid"])
+        handle_user_db_sync(user["oid"], user["name"])
         return redirect(url_for("index"))
     except:
         return redirect(url_for('login'))
@@ -58,7 +67,9 @@ def logout():
 @app.route("/")
 @login_required
 def index():
-    return render_template('index.html', user=auth.get_user(), version=app.config["APP_VERSION"])
+    user=auth.get_user()
+    handle_user_db_sync(user["oid"], user["name"])
+    return render_template('index.html', user=user, version=app.config["APP_VERSION"], tasks=db.search_tasks_by_user(user["oid"]))
 
 @app.route("/door")
 @login_required
@@ -95,7 +106,37 @@ def pfp():
 @login_required
 def tasks():
     user = auth.get_user()
-    return db.get_tasks_for_user(user["oid"])
+    tasks = db.search_tasks_by_user(user["oid"])
+    task_list = [{'description': task.description, 'deadline': task.deadline} for task in tasks]
+    return jsonify(task_list)
+
+
+@app.route("/admin")
+@login_required
+@admin_required
+def admin():
+    user=auth.get_user()
+    return render_template('admin.html', user=user, version=app.config["APP_VERSION"])
+
+@app.route('/createtask', methods=['POST'])
+@login_required
+@admin_required
+def createtask():
+    print(request.form)
+    author_id = auth.get_user()["oid"]
+    assigned_to = request.form['assigned_to']
+    description = request.form['description']
+    deadline = datetime.strptime(request.form['deadline'], '%Y-%m-%dT%H:%M')
+    task = db.create_task(author_id, assigned_to, description, deadline)
+    return f'Task created! ID: {task.task_id}'
+
+@app.route('/get_users')
+@login_required
+@admin_required
+def get_users():
+    users = db.get_all_users()
+    user_list = [{'user_id': user.user_id, 'name': user.name} for user in users]
+    return jsonify(user_list)
 
 if __name__ == '__main__':
     app.run(host='localhost', port=5000, debug=True)

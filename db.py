@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, String, Integer, DateTime, ForeignKey, func
+from sqlalchemy import create_engine, Column, String, Integer, Boolean, DateTime, ForeignKey, func
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
 import uuid
@@ -67,6 +67,7 @@ class Task(Base):
     assigned_to = Column(String)  # Can be a comma-separated string of user_ids
     description = Column(String)
     deadline = Column(DateTime)
+    isdone = Column(Boolean)
 
     author = relationship("User", backref="tasks")
 
@@ -120,6 +121,15 @@ def delete_user(user_id):
 def get_user_exist(user_id):
     user = session.query(User).filter(User.user_id.ilike(f'%{user_id}%')).first()
     return user is not None
+
+def get_user_auth_level(user_id):
+    user = session.query(User).filter(User.user_id.ilike(f'%{user_id}%')).first()
+    return user.auth_level
+
+# Helper function to get all users
+def get_all_users():
+    users = session.query(User)
+    return users
 
 # Helper function to create a new door
 def create_door(name, auth_level_needed):
@@ -216,7 +226,6 @@ def delete_chat_message(message_id):
     if chat_message:
         session.delete(chat_message)
         session.commit()
-
 
 # Helper function to search for chat messages by content
 def search_chat_messages_by_content(content):

@@ -28,6 +28,7 @@
         - assigned_to [uuid] *(can be multiple)*
         - description [string]
         - deadline [timestamp]
+        - isdone [boolean]
 
 - ## Votes
     - vote_id [uuid]
