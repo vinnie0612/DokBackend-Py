@@ -12,37 +12,37 @@
     <form method="POST" action="/createtask">
         <label for="assigned_to">Assigned to:</label>
         <select id="assigned_to" name="assigned_to" required></select>
-    
+        
         <script>
             // Retrieve all users from the server
             fetch('/get_users')
-                .then(response => response.json())
-                .then(users => {
-                    // Get the select element
-                    const selectElement = document.getElementById('assigned_to');
-    
-                    // Iterate over the users and create an option element for each
-                    users.forEach(user => {
-                        const optionElement = document.createElement('option');
-                        optionElement.value = user.name;
-                        optionElement.innerHTML = user.user_id;
-                        selectElement.appendChild(optionElement);
-                    });
-                })
-                .catch(error => console.error('Error:', error));
+            .then(response => response.json())
+            .then(users => {
+                // Get the select element
+                const selectElement = document.getElementById('assigned_to');
+                
+                // Iterate over the users and create an option element for each
+                users.forEach(user => {
+                    const optionElement = document.createElement('option');
+                    optionElement.value = user.user_id;
+                    optionElement.innerHTML = user.name;
+                    selectElement.appendChild(optionElement);
+                });
+            })
+            .catch(error => console.error('Error:', error));
         </script>
         <br>
-
+        
         <label for="description">Description:</label>
         <textarea id="description" name="description" required></textarea><br>
         <br>
-
+        
         <label for="deadline">Deadline:</label>
         <input type="datetime-local" id="deadline" name="deadline" required><br>
-
+        
         <input type="submit" value="Create Task">
     </form>
-
+    
     <hr>
     <footer style="text-align: right">DÖKBackend-Py {{ version }}</footer>
 </body>
