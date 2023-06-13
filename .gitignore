@@ -1,6 +1,7 @@
 # Our stuff that should not get commited 
 /config.py
 /dokbackend.db
+flask_session/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
