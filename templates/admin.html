@@ -57,7 +57,8 @@
                     deadline: new Date(task.deadline),
                     description: task.description,
                     assigned_to: task.assigned_to,
-                    task_id: task.task_id
+                    task_id: task.task_id,
+                    isdone: task.isdone
                 };
             });
             
@@ -73,17 +74,20 @@
                     minute: 'numeric'
                 });
                 
-                liElement.textContent = `${task.description} - Deadline: ${formattedDeadline} - Assigned to: ${task.assigned_to} `;
+                const doneText = task.isdone ? 'Done' : 'Not Done';
+                
+                liElement.textContent = `${task.description} - Deadline: ${formattedDeadline} - Assigned to: ${task.assigned_to} - Status: ${doneText}`;
                 
                 ulElement.appendChild(liElement);
-            });}
-        )
-        </script>
-        {% else %}
-        <p>You have not assigned any tasks!</p>
-        {% endif %}
-
-
+            });
+        });
+        
+    </script>
+    {% else %}
+    <p>You have not assigned any tasks!</p>
+    {% endif %}
+    
+    
     <hr>
     <footer style="text-align: right">DÖKBackend-Py {{ version }}</footer>
 </body>

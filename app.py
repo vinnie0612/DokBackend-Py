@@ -125,7 +125,7 @@ def tasks():
 def atasks():
     user = auth.get_user()
     tasks = db.search_tasks_by_author_id(user['oid'])
-    task_list = [{'description': task.description, 'deadline': task.deadline, 'assigned_to': db.get_user(task.assigned_to).name, 'task_id': task.task_id} for task in tasks]
+    task_list = [{'description': task.description, 'deadline': task.deadline, 'assigned_to': db.get_user(task.assigned_to).name, 'task_id': task.task_id, 'isdone': task.isdone} for task in tasks]
     return jsonify(task_list)
 
 @app.route('/createtask', methods=['POST'])
