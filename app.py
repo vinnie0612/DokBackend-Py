@@ -69,7 +69,7 @@ def logout():
 def index():
     user=auth.get_user()
     handle_user_db_sync(user['oid'], user['name'])
-    return render_template('index.html', user=user, version=app.config['APP_VERSION'], tasks=db.search_tasks_by_user(user['oid']))
+    return render_template('index.html', user=user, version=app.config['APP_VERSION'], tasks=[task for task in db.search_tasks_by_user(user['oid']) if task.isdone == 0])
 
 @app.route('/door')
 @login_required
