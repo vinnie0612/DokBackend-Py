@@ -2,10 +2,25 @@ from flask import Flask, redirect, render_template, request, session, url_for, j
 from flask_session import Session
 from datetime import datetime
 from functools import wraps
-import db
 import requests
 import config
 import identity.web
+import importlib
+import os
+import helpers
+
+# Get the list of files in the "helpers" directory
+helpers_dir = os.path.join(os.path.dirname(__file__), 'helpers')
+helper_files = os.listdir(helpers_dir)
+
+# Import all the modules from the "helpers" directory
+for file in helper_files:
+    if file.endswith('.py') and file != '__init__.py':
+        module_name = os.path.splitext(file)[0]
+        module = importlib.import_module(f'helpers.{module_name}')
+
+        # Add the imported module to the "helpers" namespace
+        setattr(helpers, module_name, module)
 
 app = Flask(__name__)
 app.secret_key = config.SECRET_KEY
@@ -33,14 +48,14 @@ def login_required(func):
 def admin_required(func):
     @wraps(func)
     def admin_wrapper(*args, **kwargs):
-        if db.get_user(auth.get_user()['oid']).auth_level < 10:
+        if helpers.users.get_user(auth.get_user()['oid']).auth_level < 10:
             return redirect(url_for('index'))
         return func(*args, **kwargs)
     return admin_wrapper
 
 def handle_user_db_sync(user_id,name):
-    if not db.get_user_exist(user_id):
-        db.create_user(name, user_id)
+    if not helpers.users.get_user_exist(user_id):
+        helpers.users.create_user(name, user_id)
 
 @app.route('/login')
 def login():
@@ -67,15 +82,18 @@ def logout():
 @app.route('/')
 @login_required
 def index():
-    user=auth.get_user()
+    user = auth.get_user()
     handle_user_db_sync(user['oid'], user['name'])
-    return render_template('index.html', user=user, version=app.config['APP_VERSION'], tasks=[task for task in db.search_tasks_by_user(user['oid']) if task.isdone == 0])
+    return render_template('index.html', user=user, version=app.config['APP_VERSION'], tasks=[t for t in helpers.task.search_tasks_by_user(user['oid']) if t.isdone == 0])
 
-@app.route('/door')
+@app.route('/doors')
 @login_required
-def door():
-    # Open the door somehow
-    return 'The door to hell has been opened.'    
+def doors():
+    raise NotImplementedError("Anyád")
+
+@app.route('/doors/<door>')
+def door_open(door):
+    raise NotImplementedError("Anyád")
 
 @app.route('/userdata')
 @login_required
@@ -107,7 +125,7 @@ def pfp():
 @admin_required
 def admin():
     user=auth.get_user()
-    tasks=db.search_tasks_by_author_id(user["oid"])
+    tasks=helpers.task.search_tasks_by_author_id(user["oid"])
     handle_user_db_sync(user['oid'], user['name'])
     return render_template('admin.html',user=user,version=app.config['APP_VERSION'],tasks=tasks)
 
@@ -115,8 +133,8 @@ def admin():
 @login_required
 def tasks():
     user = auth.get_user()
-    tasks = db.search_tasks_by_user(user['oid'])
-    task_list = [{'description': task.description, 'deadline': task.deadline, 'author': db.get_user(task.author_id).name, 'task_id': task.task_id} for task in tasks if not task.isdone]
+    tasks = helpers.task.search_tasks_by_user(user['oid'])
+    task_list = [{'description': t.description, 'deadline': t.deadline, 'author': helpers.users.get_user(t.author_id).name, 'task_id': t.task_id} for t in tasks if not t.isdone]
     return jsonify(task_list)
 
 @app.route('/atasks')
@@ -124,8 +142,8 @@ def tasks():
 @admin_required
 def atasks():
     user = auth.get_user()
-    tasks = db.search_tasks_by_author_id(user['oid'])
-    task_list = [{'description': task.description, 'deadline': task.deadline, 'assigned_to': db.get_user(task.assigned_to).name, 'task_id': task.task_id, 'isdone': task.isdone} for task in tasks]
+    tasks = helpers.task.search_tasks_by_author_id(user['oid'])
+    task_list = [{'description': t.description, 'deadline': t.deadline, 'assigned_to': helpers.users.get_user(t.assigned_to).name, 'task_id': t.task_id, 'isdone': t.isdone} for t in tasks]
     return jsonify(task_list)
 
 @app.route('/createtask', methods=['POST'])
@@ -136,27 +154,28 @@ def createtask():
     assigned_to = request.form['assigned_to']
     description = request.form['description']
     deadline = datetime.strptime(request.form['deadline'], '%Y-%m-%dT%H:%M')
-    task = db.create_task(author_id, assigned_to, description, deadline)
+    helpers.task.create_task(author_id, assigned_to, description, deadline)
     return redirect(url_for('admin'))
 
 @app.route('/marktaskdone/<task_id>', methods=['GET', 'POST'])
 @login_required
 def marktaskdone(task_id):
     if request.method == 'GET':
-        if db.search_tasks_by_task_id(task_id):
-            return render_template('marktaskdone.html', task=db.search_tasks_by_task_id(task_id), user=auth.get_user())
+        task = helpers.task.search_tasks_by_task_id(task_id)
+        if task:
+            return render_template('marktaskdone.html', task=task, user=auth.get_user())
         return "Invalid task!"
     else:
         experience = request.form['experience']
-        print(db.add_experience(task_id, experience))
-        print(db.mark_task_done(task_id))
+        print(helpers.task.add_experience(task_id, experience))
+        print(helpers.task.mark_task_done(task_id))
         return redirect(url_for('index'))
     
 @app.route('/get_users')
 @login_required
 @admin_required
 def get_users():
-    users = db.get_all_users()
+    users = helpers.users.get_all_users()
     user_list = [{'user_id': user.user_id, 'name': user.name} for user in users]
     return jsonify(user_list)
 
