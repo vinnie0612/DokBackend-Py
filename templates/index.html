@@ -15,7 +15,7 @@
     <ul>
         <li><a href="/logout">Logout</a></li>
         <li><a href="/door">Open a Door</a></li>
-        <li><a href="/downstream">Get user info in JSON</a></li>
+        <li><a href="/userdata">Get user info in JSON</a></li>
         <li><a href="/admin">Access the admin interface</a></li>
     </ul>
     <h2>Tasks</h2>
@@ -31,29 +31,34 @@
             const tasks = data.map(task => {
                 return {
                     deadline: new Date(task.deadline),
-                    description: task.description
+                    description: task.description,
+                    author: task.author,
+                    task_id: task.task_id
                 };
             });
             
-            const ulElement = document.getElementById('tasklist'); // Replace 'taskList' with the ID of your existing <ul> element
-                ulElement.innerHTML = ''; // Clear existing content
-                
-                tasks.forEach(task => {
-                    const liElement = document.createElement('li');
-                    const formattedDeadline = task.deadline.toLocaleString('en-US', {
-                        month: 'long',
-                        day: 'numeric',
-                        hour: 'numeric',
-                        minute: 'numeric'
-                    });
-                    liElement.textContent = `${task.description} - Deadline: ${formattedDeadline}`;
-                    ulElement.appendChild(liElement);
-                });
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+            const ulElement = document.getElementById('tasklist');
+            ulElement.innerHTML = '';
             
+            tasks.forEach(task => {
+                const liElement = document.createElement('li');
+                const formattedDeadline = task.deadline.toLocaleString('en-US', {
+                    month: 'long',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: 'numeric'
+                });
+                
+                const aElement = document.createElement('a');
+                aElement.href = `/marktaskdone/${task.task_id}`;
+                aElement.textContent = 'Mark as Done';
+                
+                liElement.textContent = `${task.description} - Deadline: ${formattedDeadline} - Assigned by: ${task.author} `;
+                liElement.appendChild(aElement);
+                
+                ulElement.appendChild(liElement);
+            });}
+        )
         </script>
         {% else %}
         <p>You have no tasks!</p>

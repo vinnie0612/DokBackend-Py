@@ -64,10 +64,11 @@ class Task(Base):
 
     task_id = Column(String, primary_key=True, default=str(uuid.uuid4()))
     author_id = Column(String, ForeignKey('users.user_id'))
-    assigned_to = Column(String)  # Can be a comma-separated string of user_ids
+    assigned_to = Column(String)
     description = Column(String)
     deadline = Column(DateTime)
-    isdone = Column(Boolean)
+    isdone = Column(Boolean, default=False)
+    experience = Column(String)
 
     author = relationship("User", backref="tasks")
 
@@ -122,9 +123,9 @@ def get_user_exist(user_id):
     user = session.query(User).filter(User.user_id.ilike(f'%{user_id}%')).first()
     return user is not None
 
-def get_user_auth_level(user_id):
+def get_user(user_id):
     user = session.query(User).filter(User.user_id.ilike(f'%{user_id}%')).first()
-    return user.auth_level
+    return user
 
 # Helper function to get all users
 def get_all_users():
@@ -183,6 +184,16 @@ def search_tasks_by_user(user_id):
     tasks = session.query(Task).filter(Task.assigned_to.ilike(f'%{user_id}%')).all()
     return tasks
 
+def search_tasks_by_author_id(author_id):
+    tasks = session.query(Task).filter(Task.author_id.ilike(f'%{author_id}%')).all()
+    return tasks
+
+# Helper function to search tasks assigned to a user
+def search_tasks_by_task_id(task_id):
+    task = session.query(Task).get(task_id)
+    if task: return task
+    return False
+
 # Helper function to create a new task
 def create_task(author_id, assigned_to, description, deadline):
     task = Task(author_id=author_id, assigned_to=assigned_to, description=description, deadline=deadline)
@@ -196,6 +207,26 @@ def delete_task(task_id):
     if task:
         session.delete(task)
         session.commit()
+
+# Helper function to update a user's name
+def add_experience(task_id, experience):
+    task = session.query(Task).get(task_id)
+    if task:
+        task.experience = experience
+        session.commit()
+        return task
+    else:
+        return None
+    
+# Helper function to update a user's name
+def mark_task_done(task_id):
+    task = session.query(Task).get(task_id)
+    if task:
+        task.isdone = True
+        session.commit()
+        return task
+    else:
+        return None
 
 # Helper function to create a new vote
 def create_vote(author_id, content, vote_y, vote_n):

@@ -42,7 +42,48 @@
         
         <input type="submit" value="Create Task">
     </form>
-    
+    <h2>Tasks assigned by you</h2>
+    {% if tasks|length > 0 %}
+    <ul id="tasklist">
+        <li>task</li>
+    </ul>
+    <script>
+        fetch('/atasks')
+        .then(response => response.json())
+        .then(data => {
+            // Assuming the response is an array of task objects
+            const tasks = data.map(task => {
+                return {
+                    deadline: new Date(task.deadline),
+                    description: task.description,
+                    assigned_to: task.assigned_to,
+                    task_id: task.task_id
+                };
+            });
+            
+            const ulElement = document.getElementById('tasklist');
+            ulElement.innerHTML = '';
+            
+            tasks.forEach(task => {
+                const liElement = document.createElement('li');
+                const formattedDeadline = task.deadline.toLocaleString('en-US', {
+                    month: 'long',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: 'numeric'
+                });
+                
+                liElement.textContent = `${task.description} - Deadline: ${formattedDeadline} - Assigned to: ${task.assigned_to} `;
+                
+                ulElement.appendChild(liElement);
+            });}
+        )
+        </script>
+        {% else %}
+        <p>You have not assigned any tasks!</p>
+        {% endif %}
+
+
     <hr>
     <footer style="text-align: right">DÖKBackend-Py {{ version }}</footer>
 </body>

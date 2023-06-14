@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DÖK: Index</title>
+</head>
+<body>
+    <img id="pfp" src="./pfp" alt="Profile Picture" width="100px" style="float: right;">
+    <h1>DÖKBackend</h1>
+    <h2>Welcome {{ user.get("name") }}!</h2>
+    <h2>Task Complete, Good Job!</h2>
+    <p>Did you have any experiences you want to submit?</p>
+    <form action="/marktaskdone/{{ task.task_id }}" id=form method="post">
+        <textarea name="experience" id="experience" cols="30" rows="10"></textarea>
+        <button type="submit">Submit</button>
+    </form>
+    <hr>
+    <footer style="text-align: right">DÖKBackend-Py {{ version }}</footer>
+</body>
+</html>
+
