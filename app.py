@@ -79,22 +79,6 @@ def auth_response():
 def logout():
     return redirect(auth.log_out(url_for('index', _external=True)))
 
-@app.route('/')
-@login_required
-def index():
-    user = auth.get_user()
-    handle_user_db_sync(user['oid'], user['name'])
-    return render_template('index.html', user=user, version=app.config['APP_VERSION'], tasks=[t for t in helpers.task.search_tasks_by_user(user['oid']) if t.isdone == 0])
-
-@app.route('/doors')
-@login_required
-def doors():
-    raise NotImplementedError("Anyád")
-
-@app.route('/doors/<door>')
-def door_open(door):
-    raise NotImplementedError("Anyád")
-
 @app.route('/userdata')
 @login_required
 def call_downstream_api():
@@ -120,6 +104,24 @@ def pfp():
     }
     return Response(r.content, headers=headers)
 
+@app.route('/')
+@login_required
+def index():
+    user = auth.get_user()
+    handle_user_db_sync(user['oid'], user['name'])
+    return render_template('index.html', user=user, version=app.config['APP_VERSION'], tasks=[t for t in helpers.task.search_tasks_by_user(user['oid']) if t.isdone == 0])
+
+@app.route('/doors')
+@login_required
+def doors():
+    raise NotImplementedError("Anyád")
+
+@app.route('/doors/<door>')
+def door_open(door):
+    raise NotImplementedError("Anyád")
+
+
+
 @app.route('/admin')
 @login_required
 @admin_required
@@ -143,7 +145,7 @@ def tasks():
 def atasks():
     user = auth.get_user()
     tasks = helpers.task.search_tasks_by_author_id(user['oid'])
-    task_list = [{'description': t.description, 'deadline': t.deadline, 'assigned_to': helpers.users.get_user(t.assigned_to).name, 'task_id': t.task_id, 'isdone': t.isdone} for t in tasks]
+    task_list = [{'description': t.description, 'deadline': t.deadline, 'assigned_to': helpers.users.get_user(t.assigned_to).name, 'task_id': t.task_id, 'isdone': t.isdone, 'experience': t.experience} for t in tasks]
     return jsonify(task_list)
 
 @app.route('/createtask', methods=['POST'])

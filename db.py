@@ -62,7 +62,7 @@ class News(Base):
 class Task(Base):
     __tablename__ = 'tasks'
 
-    task_id = Column(String, primary_key=True, default=str(uuid.uuid4()))
+    task_id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     author_id = Column(String, ForeignKey('users.user_id'))
     assigned_to = Column(String)
     description = Column(String)
