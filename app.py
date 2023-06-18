@@ -57,11 +57,15 @@ def handle_user_db_sync(user_id,name):
     if not helpers.users.get_user_exist(user_id):
         helpers.users.create_user(name, user_id)
 
-@app.route('/login')
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    return render_template('login.html', version=app.config['APP_VERSION'], **auth.log_in(
-        scopes=app.config['MS_SCOPE'],
-        redirect_uri=url_for('auth_response', _external=True),))
+    if request.method == 'GET':
+        return render_template('login.html', version=app.config['APP_VERSION'], **auth.log_in(
+            scopes=app.config['MS_SCOPE'],
+            redirect_uri=url_for('auth_response', _external=True),))
+    else:
+        auth_uri = auth.log_in(scopes=app.config['MS_SCOPE'],redirect_uri=url_for('auth_response', _external=True))['auth_uri']
+        return auth_uri
 
 @app.route(app.config['MS_AUTH_RESPONSE'])
 def auth_response():
@@ -92,6 +96,14 @@ def call_downstream_api():
         timeout=30,
     ).json()
     return jsonify(api_result)
+
+@app.route('/token')
+@login_required
+def token():
+    token = auth.get_token_for_user(app.config['MS_SCOPE'])
+    if 'error' in token:
+        return (token, 403)
+    return token
 
 @app.route('/pfp')
 @login_required
