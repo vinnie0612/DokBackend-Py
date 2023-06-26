@@ -3,6 +3,12 @@
 /dokbackend.db
 flask_session/
 
+# Ignore all files in the ./static/images/ directory
+/static/images/*
+
+# Except for none.jpg
+!/static/images/none.jpg
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
