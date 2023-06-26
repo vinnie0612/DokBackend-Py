@@ -1,7 +1,7 @@
 from db import *
 
-def create_user(name, user_id):
-    user = User(name=name, user_id=user_id)
+def create_user(name, user_id, auth_level=0):
+    user = User(name=name, user_id=user_id, auth_level=auth_level)
     session.add(user)
     session.commit()
     return user

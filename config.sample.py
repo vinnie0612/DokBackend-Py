@@ -6,6 +6,7 @@ MS_CLIENT_ID = 'your-clientid-here'
 MS_CLIENT_SECRET = 'your-secret-here'
 MS_AUTHORITY = 'https://login.microsoftonline.com/your-uuid-here'
 MS_AUTH_RESPONSE = '/msauth_response'
+ADMIN_ID = "admin-id-here"
 SESSION_TYPE = 'filesystem'
 APP_VERSION = '0.1 BETA'
 SECRET_KEY = os.urandom(12).hex()

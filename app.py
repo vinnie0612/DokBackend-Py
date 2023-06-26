@@ -55,7 +55,10 @@ def admin_required(func):
 
 def handle_user_db_sync(user_id,name):
     if not helpers.users.get_user_exist(user_id):
-        helpers.users.create_user(name, user_id)
+        if user_id == app.config['ADMIN_ID']:
+            helpers.users.create_user(name, user_id, 10)
+        else:
+            helpers.users.create_user(name, user_id)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
