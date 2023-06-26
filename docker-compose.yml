@@ -7,3 +7,10 @@ services:
     ports:
       - 5000:5000
     restart: always
+    volumes:
+      - static-volume:/app/static
+      - db-volume:/app/dokbackend.db
+
+volumes:
+  static-volume:
+  db-volume:
