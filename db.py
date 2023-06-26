@@ -28,7 +28,7 @@ class User(Base):
 class Door(Base):
     __tablename__ = 'doors'
 
-    door_id = Column(String, primary_key=True, default=str(uuid.uuid4()))
+    door_id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     name = Column(String)
     openable_by = Column(String)
 
@@ -37,7 +37,7 @@ class Door(Base):
 class DoorAccess(Base):
     __tablename__ = 'door_access'
 
-    access_id = Column(String, primary_key=True, default=str(uuid.uuid4()))
+    access_id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = Column(String, ForeignKey('users.user_id'))
     door_id = Column(String, ForeignKey('doors.door_id'))
     accessed_at = Column(DateTime, default=func.now())
@@ -50,7 +50,7 @@ class DoorAccess(Base):
 class News(Base):
     __tablename__ = 'news'
 
-    news_id = Column(String, primary_key=True, default=str(uuid.uuid4()))
+    news_id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     author_id = Column(String, ForeignKey('users.user_id'))
     created_at = Column(DateTime, default=func.now())
     topic = Column(String)
@@ -79,7 +79,7 @@ class Task(Base):
 class Vote(Base):
     __tablename__ = 'votes'
 
-    vote_id = Column(String, primary_key=True, default=str(uuid.uuid4()))
+    vote_id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     author_id = Column(String, ForeignKey('users.user_id'))
     content = Column(String)
     vote_y = Column(Integer)
@@ -94,7 +94,7 @@ class Vote(Base):
 class Chat(Base):
     __tablename__ = 'chat'
 
-    message_id = Column(String, primary_key=True, default=str(uuid.uuid4()))
+    message_id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     author_id = Column(String, ForeignKey('users.user_id'))
     sent_at = Column(DateTime, default=func.now())
     content = Column(String)
