@@ -10,3 +10,6 @@ services:
     volumes:
       - dok-static:/app/static
       - dok-db:/app/db
+volumes:
+  dok-static:
+  dok-db:
