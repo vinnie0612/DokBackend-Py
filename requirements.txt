@@ -6,3 +6,4 @@ requests
 msal
 identity
 pillow
+gunicorn
