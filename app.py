@@ -132,8 +132,6 @@ def doors():
 def door_open(door):
     raise NotImplementedError("Anyád")
 
-
-
 @app.route('/admin')
 @login_required
 @admin_required
@@ -192,6 +190,29 @@ def get_users():
     users = helpers.users.get_all_users()
     user_list = [{'user_id': user.user_id, 'name': user.name} for user in users]
     return jsonify(user_list)
+
+# form should also contain topic, title, content and an image
+@app.route('/add_news', methods=['POST'])
+@login_required
+@admin_required
+def add_news():
+    author_id = auth.get_user()['oid']
+    topic = request.form['topic']
+    title = request.form['title']
+    content = request.form['content']
+    news = helpers.news.create_news(author_id, topic, title, content)
+    helpers.image.upload_image(request.files['image'], news.news_id)
+    return "OK", 200
+
+@app.route('/news')
+def news():
+    return helpers.news.get_news()
+
+@app.route('/get_news_image/<news_id>')
+def get_news_image(news_id):
+    res_image = helpers.image.get_image(news_id)
+
+    return res_image
 
 if __name__ == '__main__':
     app.run(host='localhost', port=5000, debug=True)

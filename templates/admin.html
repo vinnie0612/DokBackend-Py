@@ -51,6 +51,25 @@
         
         <input type="submit" value="Create Task">
     </form>
+
+    <h2>Add a new news</h2>
+    <form method="POST" action="/add_news" enctype="multipart/form-data">
+        <label for="description">Content:</label>
+        <textarea id="content" name="content" required></textarea><br>
+        <br>
+        
+        <label for="topic">Topic:</label>
+        <input id="topic" name="topic" required>
+        <br>
+        
+        <label for="topic">Title:</label>
+        <input id="title" name="title" required>
+        <br>
+
+        <input type="file" name="image" accept="image/*" required><br>
+
+        <input type="submit" value="Create News">
+    </form>
     
     <h2>Tasks assigned by you</h2>
     {% if tasks|length > 0 %}
