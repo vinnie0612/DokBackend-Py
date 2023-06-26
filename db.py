@@ -4,7 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 import uuid
 
 # Create the database engine
-engine = create_engine('sqlite:///dokbackend.db')
+engine = create_engine('sqlite:///db/dokbackend.db')
 
 # Create a session factory
 Session = sessionmaker(bind=engine)

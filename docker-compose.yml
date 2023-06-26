@@ -7,4 +7,6 @@ services:
     ports:
       - 5000:5000
     restart: always
-
+    volumes:
+      - dok-static:/app/static
+      - dok-db:/app/db

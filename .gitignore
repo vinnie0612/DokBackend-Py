@@ -1,6 +1,6 @@
 # Our stuff that should not get commited 
 /config.py
-/dokbackend.db
+/db/dokbackend.db
 flask_session/
 
 # Ignore all files in the ./static/images/ directory
