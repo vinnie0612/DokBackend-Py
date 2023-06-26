@@ -22,7 +22,7 @@ def delete_news(news_id):
         session.commit()
 
 def get_news():
-    news = session.query(News).all()
+    news = reversed(session.query(News).all())
     formatted_news = []
 
     for item in news:
