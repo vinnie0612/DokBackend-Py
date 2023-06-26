@@ -1,5 +1,6 @@
 from flask import Flask, redirect, render_template, request, session, url_for, jsonify, Response
 from flask_session import Session
+from flask_cors import CORS
 from datetime import datetime
 from functools import wraps
 import requests
@@ -23,6 +24,7 @@ for file in helper_files:
         setattr(helpers, module_name, module)
 
 app = Flask(__name__)
+CORS(app)
 app.secret_key = config.SECRET_KEY
 app.config.from_pyfile('config.py')
 Session(app)
