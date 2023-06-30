@@ -20,6 +20,8 @@ def delete_news(news_id):
     if news:
         session.delete(news)
         session.commit()
+        return True
+    return False
 
 def get_news():
     news = reversed(session.query(News).all())

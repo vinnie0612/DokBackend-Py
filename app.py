@@ -102,14 +102,6 @@ def call_downstream_api():
     ).json()
     return jsonify(api_result)
 
-@app.route('/token')
-@login_required
-def token():
-    token = auth.get_token_for_user(app.config['MS_SCOPE'])
-    if 'error' in token:
-        return (token, 403)
-    return token
-
 @app.route('/pfp')
 @login_required
 def pfp():
@@ -163,7 +155,7 @@ def atasks():
     task_list = [{'description': t.description, 'deadline': t.deadline, 'assigned_to': helpers.users.get_user(t.assigned_to).name, 'task_id': t.task_id, 'isdone': t.isdone, 'experience': t.experience} for t in tasks]
     return jsonify(task_list)
 
-@app.route('/createtask', methods=['POST'])
+@app.route('/create_task', methods=['POST'])
 @login_required
 @admin_required
 def createtask():
@@ -174,20 +166,35 @@ def createtask():
     helpers.task.create_task(author_id, assigned_to, description, deadline)
     return redirect(url_for('admin'))
 
-@app.route('/marktaskdone/<task_id>', methods=['GET', 'POST'])
+@app.route('/marktaskdone', methods=['POST'])
 @login_required
-def marktaskdone(task_id):
-    if request.method == 'GET':
-        task = helpers.task.search_tasks_by_task_id(task_id)
-        if task:
-            return render_template('marktaskdone.html', task=task, user=auth.get_user())
-        return "Invalid task!"
+def marktaskdone():
+    user = auth.get_user()
+    tasks = helpers.task.search_tasks_by_user(user['oid'])
+    task_id = request.form['task_id']
+    q = [t for t in tasks if t.task_id == task_id]
+    task = len(q)
+    if task and q[0].isdone == 0:
+        helpers.task.mark_task_done(task_id)
+        return "OK", 200
     else:
-        experience = request.form['experience']
-        print(helpers.task.add_experience(task_id, experience))
-        print(helpers.task.mark_task_done(task_id))
-        return redirect(url_for('index'))
+        return "Error", 403
     
+@app.route('/add_experience', methods=['POST'])
+@login_required
+def add_experience():
+    user = auth.get_user()
+    tasks = helpers.task.search_tasks_by_user(user['oid'])
+    task_id = request.form['task_id']
+    q = [t for t in tasks if t.task_id == task_id]
+    task = len(q)
+    if task and q[0].experience == "":
+        helpers.task.add_experience(task_id, request.form['experience'])
+        return "OK", 200
+    else:
+        return "Error", 403
+
+
 @app.route('/get_users')
 @login_required
 @admin_required
@@ -209,15 +216,22 @@ def add_news():
     helpers.image.upload_image(request.files['image'], news.news_id)
     return "OK", 200
 
+@app.route('/del_news', methods=['POST'])
+@login_required
+@admin_required
+def delete_news():
+    news_id = request.form['news_id']
+    if helpers.news.delete_news(news_id):
+        return "OK", 200
+    return "Error", 404
+
 @app.route('/news')
 def news():
     return helpers.news.get_news()
 
 @app.route('/get_news_image/<news_id>')
 def get_news_image(news_id):
-    res_image = helpers.image.get_image(news_id)
-
-    return res_image
+    return helpers.image.get_image(news_id)
 
 if __name__ == '__main__':
     app.run(host='localhost', port=5000, debug=True)
