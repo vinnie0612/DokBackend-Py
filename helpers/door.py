@@ -14,6 +14,8 @@ def delete_door(door_id):
     if door:
         session.delete(door)
         session.commit()
+        return True
+    return False
 
 # Helper function to search for doors by name
 def search_doors_by_name(name):
@@ -32,18 +34,4 @@ def delete_door_access(access_id):
     door_access = session.query(DoorAccess).get(access_id)
     if door_access:
         session.delete(door_access)
-        session.commit()
-
-# Helper function to create a new vote
-def create_vote(author_id, content, vote_y, vote_n):
-    vote = Vote(author_id=author_id, content=content, vote_y=vote_y, vote_n=vote_n)
-    session.add(vote)
-    session.commit()
-    return vote
-
-# Helper function to delete a vote
-def delete_vote(vote_id):
-    vote = session.query(Vote).get(vote_id)
-    if vote:
-        session.delete(vote)
         session.commit()

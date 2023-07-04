@@ -82,8 +82,8 @@ class Vote(Base):
     vote_id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     author_id = Column(String, ForeignKey('users.user_id'))
     content = Column(String)
-    vote_y = Column(Integer)
-    vote_n = Column(Integer)
+    vote_y = Column(Integer, default=0)
+    vote_n = Column(Integer, default=0)
 
     @property
     def vote_total(self):
